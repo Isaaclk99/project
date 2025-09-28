@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PipeDrill Pro - Services & Supplies</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; }
+        
+        .header { 
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white; padding: 2rem 0; text-align: center;
+        }
+        
+        .nav-tabs { 
+            display: flex; background: var(--dark); justify-content: center;
+            position: sticky; top: 0; z-index: 100; flex-wrap: wrap;
+        }
+        .nav-tab { 
+            padding: 1rem 2rem; color: white; cursor: pointer; border: none;
+            background: none; transition: all 0.3s; font-weight: 500;
+        }
+        .nav-tab:hover { background: rgba(255,255,255,0.1); }
+        .nav-tab.active { background: var(--secondary); }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .tab-content { display: none; animation: fadeIn 0.5s; }
+        .tab-content.active { display: block; }
+        
+        .card { 
+            background: white; padding: 2rem; margin: 1rem 0; 
+            border-radius: 10px; box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+        
+        .grid { 
+            display: grid; gap: 2rem; 
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        
+        .product-card, .service-card {
+            border: 1px solid #e0e0e0; border-radius: 10px; padding: 1.5rem;
+            transition: all 0.3s; background: white;
+        }
+        .product-card:hover, .service-card:hover {
+            transform: translateY(-5px); box-shadow: 0 5px 25px rgba(0,0,0,0.15);
+        }
+        
+        .product-image {
+            width: 100%; height: 200px; object-fit: cover; border-radius: 8px;
+            background: #f8f9fa; display: flex; align-items: center; justify-content: center;
+            color: #bdc3c7; margin-bottom: 1rem;
+        }
+        
+        .price { color: var(--accent); font-size: 1.4rem; font-weight: bold; }
+        .rating { color: var(--warning); }
+        
+        .btn {
+            padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer;
+            font-size: 1rem; transition: all 0.3s; margin: 5px; font-weight: 600;
+        }
+        .btn-primary { background: var(--secondary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--accent); color: white; }
+        .btn-outline { background: transparent; border: 2px solid var(--secondary); color: var(--secondary); }
+        
+        .cart-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 1rem; border-bottom: 1px solid #eee;
+        }
+        .quantity-controls { display: flex; align-items: center; gap: 10px; }
+        
+        .form-group { margin: 1rem 0; }
+        .form-control { 
+            width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px;
+            font-size: 1rem; transition: border-color 0.3s;
+        }
+        .form-control:focus { outline: none; border-color: var(--secondary); }
+        
+        .feature-tag {
+            background: var(--light); padding: 4px 8px; border-radius: 4px;
+            font-size: 0.8rem; margin: 2px; display: inline-block;
+        }
+        
+        .search-container {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+        }
+        
+        .order-card {
+            border-left: 4px solid var(--secondary);
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .order-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-in-progress { background: #cce5ff; color: #004085; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .notification {
+            position: fixed; top: 20px; right: 20px; padding: 1rem 2rem;
+            border-radius: 5px; color: white; z-index: 1000; animation: slideIn 0.3s;
+        }
+        .notification.success { background: var(--success); }
+        .notification.error { background: var(--accent); }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-tabs { flex-direction: column; }
+            .nav-tab { width: 100%; text-align: center; }
+            .grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-tools"></i> PipeDrill Pro</h1>
+        <p>Professional Pipe Drilling Services & Industrial Supplies</p>
+    </div>
+    
+    <div class="nav-tabs">
+        <button class="nav-tab active" onclick="switchTab('home')"><i class="fas fa-home"></i> Home</button>
+        <button class="nav-tab" onclick="switchTab('services')"><i class="fas fa-concierge-bell"></i> Drilling Services</button>
+        <button class="nav-tab" onclick="switchTab('products')"><i class="fas fa-shopping-cart"></i> Pipe Supplies</button>
+        <button class="nav-tab" onclick="switchTab('cart')"><i class="fas fa-shopping-bag"></i> Cart (<span id="cartCount">0</span>)</button>
+        <button class="nav-tab" onclick="switchTab('orders')"><i class="fas fa-clipboard-list"></i> My Orders</button>
+    </div>
+    
+    <div class="container">
+        <!-- Home Tab -->
+        <div id="home" class="tab-content active">
+            <div class="card">
+                <h2>Welcome to PipeDrill Pro</h2>
+                <p>Your one-stop solution for professional pipe drilling services and industrial pipe supplies.</p>
+                
+                <div class="grid" style="margin-top: 2rem;">
+                    <div class="card">
+                        <h3><i class="fas fa-hammer"></i> Drilling Services</h3>
+                        <p>Professional pipe drilling, threading, and fabrication services</p>
+                        <button class="btn btn-primary" onclick="switchTab('services')">Book Service</button>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-box-open"></i> Pipe Supplies</h3>
+                        <p>High-quality pipes, tools, and drilling equipment</p>
+                        <button class="btn btn-primary" onclick="switchTab('products')">Shop Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Services Tab -->
+        <div id="services" class="tab-content">
+            <h2>Professional Drilling Services</h2>
+            <div class="card">
+                <h3>Book a Service</h3>
+                <form id="serviceForm" class="grid-2">
+                    <div class="form-group">
+                        <label>Service Type</label>
+                        <select id="serviceType" class="form-control" required>
+                            <option value="">Select Service</option>
+                            <option value="precision-drilling">Precision Drilling</option>
+                            <option value="threading">Pipe Threading</option>
+                            <option value="fabrication">Custom Fabrication</option>
+                            <option value="emergency">Emergency Repair</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Pipe Material</label>
+                        <select id="pipeMaterial" class="form-control" required>
+                            <option value="">Select Material</option>
+                            <option value="stainless-steel">Stainless Steel</option>
+                            <option value="carbon-steel">Carbon Steel</option>
+                            <option value="aluminum">Aluminum</option>
+                            <option value="copper">Copper</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Pipe Diameter (inches)</label>
+                        <input type="number" id="pipeDiameter" class="form-control" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Estimated Hours</label>
+                        <input type="number" id="estimatedHours" class="form-control" min="1" required>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>Project Description</label>
+                        <textarea id="projectDescription" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Name</label>
+                        <input type="text" id="contactName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="contactEmail" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="contactPhone" class="form-control" required>
+                    </div>
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <button type="submit" class="btn btn-success">Submit Service Request</button>
+                    </div>
+                </form>
+            </div>
+            
+            <h3>Available Services</h3>
+            <div id="servicesContainer" class="grid"></div>
+        </div>
+        
+        <!-- Products Tab -->
+        <div id="products" class="tab-content">
+            <h2>Pipe Supplies & Equipment</h2>
+            <div class="card">
+                <div class="search-container">
+                    <input type="text" id="productSearch" placeholder="Search pipes, tools, equipment..." class="form-control">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+            </div>
+            <div id="productsContainer" class="grid"></div>
+        </div>
+        
+        <!-- Cart Tab -->
+        <div id="cart" class="tab-content">
+            <h2>Shopping Cart</h2>
+            <div id="cartContainer"></div>
+            <div class="card">
+                <h3>Order Summary</h3>
+                <div id="cartSummary"></div>
+                <button class="btn btn-success" onclick="checkout()">Proceed to Checkout</button>
+            </div>
+        </div>
+        
+        <!-- Orders Tab -->
+        <div id="orders" class="tab-content">
+            <h2>My Orders & Service Requests</h2>
+            <div class="card">
+                <h3>Service Requests</h3>
+                <div id="serviceRequests"></div>
+            </div>
+            <div class="card">
+                <h3>Product Orders</h3>
+                <div id="productOrders"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for products and services
+        const products = [
+            {
+                id: 1,
+                name: "Stainless Steel Pipe 2-inch",
+                description: "High-quality stainless steel pipe, corrosion-resistant and durable.",
+                price: 24.99,
+                unit: "foot",
+                stock: 150,
+                features: ["Corrosion-resistant", "High durability", "Food grade"]
+            },
+            {
+                id: 2,
+                name: "PVC Pipe 4-inch",
+                description: "Schedule 40 PVC pipe for plumbing and irrigation applications.",
+                price: 12.99,
+                unit: "foot",
+                stock: 200,
+                features: ["Lightweight", "Easy to install", "Chemical resistant"]
+            },
+            {
+                id: 3,
+                name: "Pipe Wrench Set",
+                description: "Professional pipe wrench set with 3 different sizes.",
+                price: 89.99,
+                unit: "set",
+                stock: 25,
+                features: ["Heavy-duty", "Adjustable", "Non-slip grip"]
+            },
+            {
+                id: 4,
+                name: "Pipe Threading Machine",
+                description: "Electric pipe threading machine for precise threads.",
+                price: 1250.00,
+                unit: "unit",
+                stock: 5,
+                features: ["Electric operation", "Precision threading", "Portable"]
+            },
+            {
+                id: 5,
+                name: "Copper Pipe 1/2-inch",
+                description: "Flexible copper pipe for water supply lines.",
+                price: 8.75,
+                unit: "foot",
+                stock: 300,
+                features: ["Excellent conductivity", "Corrosion-resistant", "Flexible"]
+            },
+            {
+                id: 6,
+                name: "Pipe Insulation",
+                description: "Self-sealing foam insulation for pipes.",
+                price: 3.25,
+                unit: "foot",
+                stock: 500,
+                features: ["Energy saving", "Easy installation", "Self-sealing"]
+            }
+        ];
+
+        const services = [
+            {
+                id: 1,
+                name: "Precision Drilling",
+                description: "Accurate drilling services for pipes of all materials and sizes.",
+                hourly_rate: 85,
+                features: ["Precision accuracy", "All materials", "Quick turnaround"]
+            },
+            {
+                id: 2,
+                name: "Pipe Threading",
+                description: "Professional threading services for secure pipe connections.",
+                hourly_rate: 75,
+                features: ["Precision threads", "All pipe sizes", "Quality guarantee"]
+            },
+            {
+                id: 3,
+                name: "Custom Fabrication",
+                description: "Custom pipe fabrication to meet your specific requirements.",
+                hourly_rate: 95,
+                features: ["Custom designs", "Professional welding", "Quality materials"]
+            },
+            {
+                id: 4,
+                name: "Emergency Repair",
+                description: "24/7 emergency pipe repair services.",
+                hourly_rate: 120,
+                features: ["24/7 availability", "Quick response", "Emergency fixes"]
+            }
+        ];
+
+        // Global cart variable
+        let shoppingCart = JSON.parse(localStorage.getItem('pipeDrillCart')) || [];
+        let serviceRequests = JSON.parse(localStorage.getItem('pipeDrillServiceRequests')) || [];
+        let productOrders = JSON.parse(localStorage.getItem('pipeDrillProductOrders')) || [];
+        
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Find and activate the clicked tab button
+            const tabButtons = document.querySelectorAll('.nav-tab');
+            for (let tab of tabButtons) {
+                if (tab.textContent.includes(tabName.charAt(0).toUpperCase() + tabName.slice(1)) || 
+                    (tabName === 'home' && tab.textContent.includes('Home'))) {
+                    tab.classList.add('active');
+                    break;
+                }
+            }
+            
+            // Update cart count
+            updateCartCount();
+            
+            // Load content based on tab
+            if (tabName === 'cart') updateCartDisplay();
+            if (tabName === 'orders') loadOrders();
+            if (tabName === 'products') loadProducts();
+            if (tabName === 'services') loadServices();
+        }
+        
+        function updateCartCount() {
+            const count = shoppingCart.reduce((total, item) => total + item.quantity, 0);
+            document.getElementById('cartCount').textContent = count;
+        }
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        
+        // Service request form handler
+        document.getElementById('serviceForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                id: Date.now(),
+                service_type: document.getElementById('serviceType').value,
+                pipe_material: document.getElementById('pipeMaterial').value,
+                pipe_diameter: document.getElementById('pipeDiameter').value,
+                estimated_hours: document.getElementById('estimatedHours').value,
+                description: document.getElementById('projectDescription').value,
+                contact_name: document.getElementById('contactName').value,
+                contact_email: document.getElementById('contactEmail').value,
+                contact_phone: document.getElementById('contactPhone').value,
+                status: 'pending',
+                date: new Date().toLocaleDateString()
+            };
+            
+            serviceRequests.push(formData);
+            localStorage.setItem('pipeDrillServiceRequests', JSON.stringify(serviceRequests));
+            
+            showNotification('Service request submitted successfully!');
+            e.target.reset();
+        });
+        
+        // Load products
+        function loadProducts() {
+            const container = document.getElementById('productsContainer');
+            container.innerHTML = products.map(product => `
+                <div class="product-card">
+                    <div class="product-image">
+                        <i class="fas fa-box fa-3x"></i>
+                    </div>
+                    <h3>${product.name}</h3>
+                    <p>${product.description}</p>
+                    <p class="price">$${product.price.toFixed(2)}/${product.unit}</p>
+                    <p>Stock: ${product.stock}</p>
+                    <div style="margin: 10px 0;">
+                        ${product.features.map(feature => 
+                            `<span class="feature-tag">${feature}</span>`
+                        ).join('')}
+                    </div>
+                    <button class="btn btn-primary" onclick="addToCart(${product.id})">
+                        Add to Cart
+                    </button>
+                </div>
+            `).join('');
+            
+            // Add search functionality
+            document.getElementById('productSearch').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredProducts = products.filter(product => 
+                    product.name.toLowerCase().includes(searchTerm) || 
+                    product.description.toLowerCase().includes(searchTerm)
+                );
+                
+                container.innerHTML = filteredProducts.map(product => `
+                    <div class="product-card">
+                        <div class="product-image">
+                            <i class="fas fa-box fa-3x"></i>
+                        </div>
+                        <h3>${product.name}</h3>
+                        <p>${product.description}</p>
+                        <p class="price">$${product.price.toFixed(2)}/${product.unit}</p>
+                        <p>Stock: ${product.stock}</p>
+                        <div style="margin: 10px 0;">
+                            ${product.features.map(feature => 
+                                `<span class="feature-tag">${feature}</span>`
+                            ).join('')}
+                        </div>
+                        <button class="btn btn-primary" onclick="addToCart(${product.id})">
+                            Add to Cart
+                        </button>
+                    </div>
+                `).join('');
+            });
+        }
+        
+        // Load services
+        function loadServices() {
+            const container = document.getElementById('servicesContainer');
+            container.innerHTML = services.map(service => `
+                <div class="service-card">
+                    <h3>${service.name}</h3>
+                    <p>${service.description}</p>
+                    <p class="price">$${service.hourly_rate}/hour</p>
+                    <div style="margin: 10px 0;">
+                        ${service.features.map(feature => 
+                            `<span class="feature-tag">${feature}</span>`
+                        ).join('')}
+                    </div>
+                    <button class="btn btn-outline" onclick="bookService(${service.id})">
+                        Book This Service
+                    </button>
+                </div>
+            `).join('');
+        }
+        
+        // Shopping cart functions
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const existingItem = shoppingCart.find(item => item.id === productId);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                shoppingCart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    quantity: 1,
+                    unit: product.unit
+                });
+            }
+            
+            localStorage.setItem('pipeDrillCart', JSON.stringify(shoppingCart));
+            updateCartCount();
+            showNotification(`${product.name} added to cart!`);
+        }
+        
+        function updateCartDisplay() {
+            const container = document.getElementById('cartContainer');
+            const summary = document.getElementById('cartSummary');
+            
+            if (shoppingCart.length === 0) {
+                container.innerHTML = '<div class="card"><p>Your cart is empty</p></div>';
+                summary.innerHTML = '<p>Total: $0.00</p>';
+                return;
+            }
+            
+            container.innerHTML = shoppingCart.map(item => `
+                <div class="cart-item card">
+                    <div>
+                        <h4>${item.name}</h4>
+                        <p>$${item.price.toFixed(2)}/${item.unit}</p>
+                    </div>
+                    <div class="quantity-controls">
+                        <button class="btn btn-outline" onclick="updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
+                        <span>${item.quantity}</span>
+                        <button class="btn btn-outline" onclick="updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                        <button class="btn btn-danger" onclick="removeFromCart(${item.id})"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+            
+            const total = shoppingCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            summary.innerHTML = `
+                <p>Subtotal: $${total.toFixed(2)}</p>
+                <p>Tax (8%): $${(total * 0.08).toFixed(2)}</p>
+                <p><strong>Total: $${(total * 1.08).toFixed(2)}</strong></p>
+            `;
+        }
+        
+        function updateQuantity(productId, newQuantity) {
+            if (newQuantity < 1) {
+                removeFromCart(productId);
+                return;
+            }
+            
+            const item = shoppingCart.find(item => item.id === productId);
+            if (item) {
+                item.quantity = newQuantity;
+                localStorage.setItem('pipeDrillCart', JSON.stringify(shoppingCart));
+                updateCartDisplay();
+                updateCartCount();
+            }
+        }
+        
+        function removeFromCart(productId) {
+            shoppingCart = shoppingCart.filter(item => item.id !== productId);
+            localStorage.setItem('pipeDrillCart', JSON.stringify(shoppingCart));
+            updateCartDisplay();
+            updateCartCount();
+            showNotification('Item removed from cart');
+        }
+        
+        function checkout() {
+            if (shoppingCart.length === 0) {
+                showNotification('Your cart is empty', 'error');
+                return;
+            }
+            
+            const order = {
+                id: Date.now(),
+                items: [...shoppingCart],
+                date: new Date().toLocaleDateString(),
+                status: 'pending',
+                total: shoppingCart.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 1.08
+            };
+            
+            productOrders.push(order);
+            localStorage.setItem('pipeDrillProductOrders', JSON.stringify(productOrders));
+            
+            shoppingCart = [];
+            localStorage.setItem('pipeDrillCart', JSON.stringify(shoppingCart));
+            
+            updateCartDisplay();
+            updateCartCount();
+            
+            showNotification('Order placed successfully!');
+            switchTab('orders');
+        }
+        
+        function loadOrders() {
+            // Service requests
+            const serviceRequestsContainer = document.getElementById('serviceRequests');
+            if (serviceRequests.length === 0) {
+                serviceRequestsContainer.innerHTML = '<p>No service requests found.</p>';
+            } else {
+                serviceRequestsContainer.innerHTML = serviceRequests.map(request => `
+                    <div class="order-card">
+                        <h4>${request.service_type.replace('-', ' ').toUpperCase()} - ${request.pipe_material}</h4>
+                        <p>Diameter: ${request.pipe_diameter}" | Hours: ${request.estimated_hours}</p>
+                        <p>Contact: ${request.contact_name} (${request.contact_phone})</p>
+                        <p>Date: ${request.date}</p>
+                        <span class="order-status status-${request.status}">${request.status.toUpperCase()}</span>
+                    </div>
+                `).join('');
+            }
+            
+            // Product orders
+            const productOrdersContainer = document.getElementById('productOrders');
+            if (productOrders.length === 0) {
+                productOrdersContainer.innerHTML = '<p>No product orders found.</p>';
+            } else {
+                productOrdersContainer.innerHTML = productOrders.map(order => `
+                    <div class="order-card">
+                        <h4>Order #${order.id}</h4>
+                        <p>Items: ${order.items.length} | Total: $${order.total.toFixed(2)}</p>
+                        <p>Date: ${order.date}</p>
+                        <span class="order-status status-${order.status}">${order.status.toUpperCase()}</span>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        function bookService(serviceId) {
+            const service = services.find(s => s.id === serviceId);
+            if (service) {
+                showNotification(`Redirecting to book ${service.name} service`);
+                // In a real app, this would open a booking form
+                document.getElementById('serviceType').value = service.name.toLowerCase().replace(' ', '-');
+                switchTab('services');
+            }
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartCount();
+            loadProducts();
+            loadServices();
+        });
+    </script>
+</body>
+</html>
